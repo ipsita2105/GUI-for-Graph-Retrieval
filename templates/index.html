@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html >
+<head>
+  <style>
+    body {
+      color: white;
+      background-image: url(/static/3.jpg);
+      background-repeat: no-repeat;
+      background-attachment: fixed;  
+      background-size: cover;
+
+    }
+
+    label, p, tr, th {
+      color: white;
+    }
+
+    h1 {
+      color: white;
+      text-shadow: 0 0 3px rgb(126, 67, 118);
+    }
+
+    div.polaroid {
+      width: 250px;
+      box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+      text-align: center;
+    }
+
+    /* #borderimg {
+      border: 2px solid transparent;
+      padding: 1px;
+      border-image: url(/static/img_border.jpg) 49% round;
+    } */
+    </style>
+
+  <meta charset="UTF-8">
+  <title>Graph Retrieval</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script> -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script> -->
+  <!--************************************************************************************************************8-->
+  <!-- <link href='https://fonts.googleapis.com/css?family=Pacifico' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Arimo' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Hind:300' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="{{ url_for('static',filename='css/style.css') }}">
+  style="background:  #d2b4de;"
+  -->
+</head>
+
+<body>
+
+  <!-- ROW 1 -->
+  <div class="row pl-3">
+      <div class="col-sm-4 "> <img src="{{ input_graph_img}}" height="400" width="400" id="input_img"></div>
+      <div class="col-sm-4 pt-5 text-center">    <h1>Get nearest graph <br> {{prediction_text}}</h1> </div>
+      <div class="col-sm-4"> <img src="" height="400" width ="400" id="myimg" align="right"> </div>
+  </div>
+
+  <!-- ROW 2 -->
+  <div class="row pt-4 pl-3">
+      <div class="col-sm-4">
+          <form action="{{ url_for('predict')}}"method="post"enctype="multipart/form-data">
+            <input type="file" class="btn btn-outline-light" name="file" id="file" value="file"/> 
+      </div>
+      <div class="col-sm-4">  
+        <button type="submit" class="btn btn-primary btn-block"> GO! </button> 
+    </div>
+      <div class="col-sm-4">  </div>
+  </div>
+
+  <!-- ROW 3 -->
+  <div class="row pt-3 pl-3">
+      <div class="col-sm-8"> 
+
+        <div class="row">
+
+          <div class="col-sm-6">
+            <div class="well">
+                  <p>Select Dataset:</p>
+                  <input type="radio" id="MUTAG" name="dataset" value="mutag">
+                  <label for="MUTAG"> MUTAG</label><br>
+                  <input type="radio" id="PTC" name="dataset" value="ptc">
+                  <label for="PTC"> PTC </label><br>
+            </div>
+          </div>
+
+          <div class="col-sm-6" style="display:flex;justify-content:center;align-items:center;">
+            <div class="well">
+                  
+                  <p> Train?: </p>
+                  <input type="radio" id="YES" name="train" value="yes">
+                  <label for="YES"> Yes </label><br>
+                  <input type="radio" id="NO" name="train" value="no">
+                  <label for="NO"> No </label > <br>
+                  
+            </div>
+          </div>
+
+
+        </div>
+
+        <div class="row">
+
+          <div class="col-sm-6" >
+            <div class="well">
+              <p> Choose Model: </p>
+              <input type="radio" id="graph2vec" name="model" value="graph2vec" onclick="alertMsg();">
+              <label for="graph2vec"> graph2vec </label><br>
+              <input type="radio" id="graph2vecContext" name="model" value="graph2vecContext">
+              <label for="graph2vecContext"> graph2vecContext</label><br> 
+            </div>
+          </div>
+
+          <div class="col-sm-6" style="display:flex;justify-content:center;align-items:center;">
+            <div class="well">
+
+              <label for="num_epochs">Enter Number of epochs:</label><br>
+              <input type="text" id="num_epochs" name="num_epochs" value="400"> <br>
+              </form>
+            </div>
+          </div>
+
+
+        </div>
+      </div>
+
+      <div class="col-sm-4">
+        <div class="well">
+          <table id="footer" class="table table-hover">
+            <tr>
+              <th>Graph Number</th>
+              <th>Similarity</th>
+            </tr>
+            {% for sno, v1, v2 in table_data: %}
+            <tr>
+              <td><input id="{{sno}}" class="btn btn-light" type="submit" value="{{v1}}" onclick="ajax($(this));return false;"/></td>
+              <td>{{v2}}</td>
+            </tr>
+            {%endfor%}
+            </table>
+        </div>
+      </div>
+
+    </div>
+        
+</body>
+
+
+<script>
+    
+    function ajax($this){
+      var id = $this.attr("value");
+
+           $.ajax({
+           url: "{{ url_for ('display_image') }}",
+           type: "GET",
+           success: function(response) {
+               $("#myimg").attr('src', '/static/saved_graphs/' + id + '.png');
+          },
+          error: function(xhr) {
+            alert(id)
+            //Do Something to handle error
+            // IDFC
+         }
+         });
+    }
+
+</script>
+<script>
+
+    $(document).ready(function() {
+       $('#111').click(function(){
+           $.ajax({
+           url: "{{ url_for ('display_image') }}",
+           type: "GET",
+           success: function(response) {
+               $("#myimg").attr('src', '/static/saved_graphs/' + response);
+          },
+          error: function(xhr) {
+            //Do Something to handle error
+            // IDFC
+         }
+         });
+       });
+    });
+  </script>
+
+  <script>
+    function alertMsg(){
+      alert("graph2vec requires training");
+    }
+  </script>
+
+  <script>
+    function onSubmit(){
+      if (!$("input[name='model']:checked").val()) {
+          alert('Model is not selected!');
+      }
+
+      if (!$("input[name='dataset']:checked").val()) {
+        alert('Dataset is not selected!');
+      }
+
+      if (!$("input[name='train']:checked").val()) {
+          alert('Select training option!');
+      }
+      
+      
+
+    }
+    </script>
+
+</html>
