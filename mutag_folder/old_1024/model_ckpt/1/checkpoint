@@ -1,0 +1,2 @@
+model_checkpoint_path: "/home/ipsita/BTP/graph2vec/tmp/for_gui/model_ckpt/1/model2.ckpt"
+all_model_checkpoint_paths: "/home/ipsita/BTP/graph2vec/tmp/for_gui/model_ckpt/1/model2.ckpt"
